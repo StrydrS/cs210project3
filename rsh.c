@@ -11,11 +11,13 @@ extern char **environ;
 
 char *allowed[N] = {"cp","touch","mkdir","ls","pwd","cat","grep","chmod","diff","cd","exit","help"};
 
-int isAllowed(const char*cmd) {
-	// TODO
-	// return 1 if cmd is one of the allowed commands
-	// return 0 otherwise
-	
+int isAllowed(const char *cmd) {
+  int len = N;
+  for(int i = 0; i < len; i++) { 
+    if(!strcmp(cmd, allowed[i])) {
+      return 1;
+    }
+  }
 	return 0;
 }
 
@@ -35,6 +37,8 @@ int main() {
 	if (strcmp(line,"\n")==0) continue;
 
 	line[strlen(line)-1]='\0';
+
+  printf("isAllowed: %d\n", isAllowed(line));
 
 	// TODO
 	// Add code to spawn processes for the first 9 commands
