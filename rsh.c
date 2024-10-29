@@ -60,7 +60,7 @@ int main() {
   // Add variables as needed
   posix_spawnattr_t attr;
   pid_t pid;
-  int status; 
+  int status;
 
   char line[256];
 
@@ -80,30 +80,33 @@ int main() {
 
     if (isAllowed(argV[0]) == 0) {
       printf("NOT ALLOWED!\n");
-    } else if(!strcmp(argV[0], "exit")) {
-      printf("exiting\n");
+    } else if (!strcmp(argV[0], "exit")) {
       return 0;
-    }else if (isAllowed(argV[0]) == 1) {
-      
+    } else if (!strcmp(argV[0], "help")) {
+      printf("The allowed commands are:\n");
+      for (int i = 0; i < N; i++) {
+        printf("%d: %s\n", i + 1, allowed[i]);
+      }
+    } else if (isAllowed(argV[0]) == 1) {
+
       posix_spawnattr_init(&attr);
 
-      if(posix_spawnp(&pid, argV[0], NULL, &attr, argV, environ) != 0) {
+      if (posix_spawnp(&pid, argV[0], NULL, &attr, argV, environ) != 0) {
         perror("spawn failed");
         exit(EXIT_FAILURE);
       }
-      
-      if(waitpid(pid, &status, 0) == -1) {
+
+      if (waitpid(pid, &status, 0) == -1) {
         perror("waitpid failed");
         exit(EXIT_FAILURE);
       }
 
-      if(WIFEXITED(status)) {
+      if (WIFEXITED(status)) {
         printf("Spawned process exited with status %d\n", WEXITSTATUS(status));
       }
 
       posix_spawnattr_destroy(&attr);
     }
-
   }
   return EXIT_SUCCESS;
 }
