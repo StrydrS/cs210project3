@@ -18,16 +18,23 @@ char **parseArg(const char *cmd) {
   char *cmdCopy = (char *)malloc(sizeof(char) * len);
   strcpy(cmdCopy, cmd);
 
+  //get number of arguments
   for (int i = 0; i < len; i++) {
     if ((cmd[i] == ' ') & (cmd[i + 1] != '\0')) {
       numArgs++;
     }
   }
+  
+  char **argV;
 
   // allocate mem based on number of arguments
-  char **argV = malloc(numArgs * sizeof(char *));
-  for (int q = 0; q < numArgs; q++) {
-    argV[q] = (char *)malloc(sizeof(char) * len);
+  if(numArgs > 1) {
+    argV = malloc((numArgs + 1)* sizeof(char *));
+    for (int q = 0; q < numArgs + 1; q++) { argV[q] = (char *)malloc(sizeof(char) * len); }
+    argV[numArgs] = NULL;
+  } else {
+      argV = malloc((numArgs)* sizeof(char *));
+      for (int q = 0; q < numArgs; q++) { argV[q] = (char *)malloc(sizeof(char) * len); }
   }
 
   char *token = strtok(cmdCopy, " ");
@@ -38,7 +45,7 @@ char **parseArg(const char *cmd) {
     token = strtok(NULL, " ");
     tokenNum++;
   }
-
+  
   return argV;
 }
 
@@ -58,9 +65,9 @@ int main() {
 
   // TODO
   // Add variables as needed
-  posix_spawnattr_t attr;
+  posix_spawnattr_t attr; 
   pid_t pid;
-  int status;
+ // int status;
 
   char line[256];
 
@@ -77,7 +84,7 @@ int main() {
     line[strlen(line) - 1] = '\0';
 
     char **argV = parseArg(line);
-
+    
     if (isAllowed(argV[0]) == 0) {
       printf("NOT ALLOWED!\n");
     } else if (!strcmp(argV[0], "exit")) {
@@ -87,7 +94,12 @@ int main() {
       for (int i = 0; i < N; i++) {
         printf("%d: %s\n", i + 1, allowed[i]);
       }
-    } else if (isAllowed(argV[0]) == 1) {
+    } else if (!strcmp(argV[0], "cd")) {
+        if(argV[2]) {
+          printf("-rsh: cd: too many arguments\n");
+      }
+        chdir(argV[1]);
+    }else if (isAllowed(argV[0]) == 1) {
 
       posix_spawnattr_init(&attr);
 
@@ -95,18 +107,9 @@ int main() {
         perror("spawn failed");
         exit(EXIT_FAILURE);
       }
-
-      if (waitpid(pid, &status, 0) == -1) {
-        perror("waitpid failed");
-        exit(EXIT_FAILURE);
-      }
-
-      if (WIFEXITED(status)) {
-        printf("Spawned process exited with status %d\n", WEXITSTATUS(status));
-      }
-
-      posix_spawnattr_destroy(&attr);
     }
+      posix_spawnattr_destroy(&attr);
   }
   return EXIT_SUCCESS;
+
 }
