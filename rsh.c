@@ -74,6 +74,7 @@ int main() {
     else if(!strcmp(argV[0], "exit")) return 0;
     else if(!strcmp(argV[0], "help")) {
       for(int i = 0; i < N; i++) {
+        printf("The allowed commands are:\n");
         printf("%d: %s\n", i + 1, allowed[i]);
       }
     } else if(!strcmp(argV[0], "cd")) {
